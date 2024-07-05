@@ -1,5 +1,7 @@
 package de.florian.banking;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Handler;
 import io.javalin.http.staticfiles.Location;
 import org.apache.logging.log4j.LogManager;
@@ -12,13 +14,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class Main {
 
     public static ArrayList<Account> accounts = new ArrayList<>();
     public static final Logger LOGGER = LogManager.getLogger();
+
 
     public static void main() {
 
@@ -31,10 +33,12 @@ public class Main {
         app.get("/register", ctx -> ctx.redirect("/register.html"));
         app.get("/login", ctx -> ctx.redirect("/login.html"));
 
+        // Handles Post Requests
         app.post("/login", handleLogin);
         app.post("/register", handleRegister);
-    }
 
+
+    }
 
     public static Handler handleLogin = ctx -> {
         String accountId = ctx.formParam("account_id");
@@ -61,9 +65,14 @@ public class Main {
         final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$";
         final Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
 
-        String name = ctx.formParam("name");
-        String password = ctx.formParam("password");
-        String age = ctx.formParam("age");
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(ctx.result());
+
+        String name = node.get("name").asText();
+        String password = node.get("password").asText();
+        String age = node.get("age").asText();
+
+        LOGGER.debug(name, password, age);
 
         assert name != null;
         if(name.isEmpty() || Objects.requireNonNull(password).isEmpty() || Objects.requireNonNull(age).isEmpty()){
@@ -83,7 +92,7 @@ public class Main {
         else{
             String encodedPassword = encoder().encode(password);
             addAccount(name, encodedPassword, Integer.parseInt(age));
-            ctx.redirect("/login.html");
+            // ctx.redirect("/login.html");
         }
     };
 
