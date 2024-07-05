@@ -29,6 +29,7 @@ public class Main {
                 })
                 .start(7070);
 
+
         app.get("/", ctx -> ctx.redirect("/login.html"));
         app.get("/register", ctx -> ctx.redirect("/register.html"));
         app.get("/login", ctx -> ctx.redirect("/login.html"));
