@@ -49,8 +49,6 @@ public class Main {
 
                     ctx.cookieStore().set("id", account.accountId);
                     ctx.cookieStore().set("role", account.role);
-                    LOGGER.debug(Optional.ofNullable(ctx.cookieStore().get("id")));
-                    LOGGER.debug(Optional.ofNullable(ctx.cookieStore().get("role")));
 
                     ctx.redirect("/index.html");
                 }
@@ -65,28 +63,28 @@ public class Main {
 
         String name = ctx.formParam("name");
         String password = ctx.formParam("password");
-        int age = Integer.parseInt(Objects.requireNonNull(ctx.formParam("age")));
+        String age = ctx.formParam("age");
 
-        if(name == null ||  password == null){
+        assert name != null;
+        if(name.isEmpty() || Objects.requireNonNull(password).isEmpty() || Objects.requireNonNull(age).isEmpty()){
             // TODO: Show that data isn't valid somehow.
-            LOGGER.debug("Name or Password is empty.");
+            LOGGER.debug("Name, password or age is empty.");
             return;
         }
-        if(age < 18){
+        if(Integer.parseInt(age) < 18){
             // TODO: Ask to enter valid age
             LOGGER.debug("Invalid Age entered.");
             return;
         }
-        if(password.isEmpty() || !pattern.matcher(password).matches()){
+        if(!pattern.matcher(password).matches()){
             // TODO: Password not valid, return.
-            LOGGER.debug("Weak or empty Password.");
+            LOGGER.debug("Too weak Password.");
         }
         else{
             String encodedPassword = encoder().encode(password);
-            addAccount(name, encodedPassword, age);
+            addAccount(name, encodedPassword, Integer.parseInt(age));
             ctx.redirect("/login.html");
         }
-
     };
 
 
