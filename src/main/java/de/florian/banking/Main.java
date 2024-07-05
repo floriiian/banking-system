@@ -1,11 +1,14 @@
 package de.florian.banking;
 
+import io.javalin.http.Handler;
 import io.javalin.http.staticfiles.Location;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import io.javalin.Javalin;
-import org.jetbrains.annotations.Nullable;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 
@@ -22,23 +25,32 @@ public class Main {
                 })
                 .start(7070);
 
-        app.get("/", ctx -> ctx.redirect("/index.html"));
+        app.get("/", ctx -> ctx.redirect("/login.html"));
 
-        app.post("/login", ctx -> {
-            // This gets an input field whenever a user posts a request
-            LOGGER.debug("output: {}", ctx.formParams("day"));
-        });
-
-        // This sends something back on a get-request
-        app.get("/input", ctx -> {
-            // some code
-            ctx.status(201);
-        });
-
-        addAccount("Brian", 99);
-        addAccount("Florian", 20);
-
+        app.post("/login", handleLogin);
     }
+
+    private static final Handler handleLogin = ctx -> {
+        String accountId = ctx.formParam("account_id");
+        String password = ctx.formParam("password");
+
+        LOGGER.debug(accountId);
+        LOGGER.debug(password);
+
+        if (accountId != null && password != null) {
+            Account account = getAccountById(Integer.parseInt(accountId));
+
+            if (account != null) {
+                if (data[1].equals(accountId)) {
+                    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+                    encoder.encode(data[2]).;
+                }
+            }
+
+        }
+    };
+
+
 
     public static void addAccount(String name, int age) {
         Account newAccount = new Account(name, age, 0, accounts.size() + 1);
@@ -57,6 +69,8 @@ public class Main {
         return null;
     }
 
-
+    public PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
 
 }

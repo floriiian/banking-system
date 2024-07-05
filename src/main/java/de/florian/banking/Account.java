@@ -3,13 +3,17 @@ package de.florian.banking;
 public class Account {
 
     public String name;
+    public String role;
+    public String password;
     public int age;
     public long balance;
     public int accountId;
 
     // Constructor
-    public Account(String name, int age, long balance, int accountId) {
+    public Account(String name, String role, String password,  int age, long balance, int accountId) {
         this.name = name;
+        this.password = password;
+        this.role = role;
         this.age = age;
         this.balance = balance;
         this.accountId = accountId;
@@ -23,7 +27,14 @@ public class Account {
         this.age = age;
     }
 
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public void setBalance(long balance) {
         this.balance = balance;
+    }
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
