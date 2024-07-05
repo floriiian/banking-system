@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class Main {
@@ -44,10 +45,12 @@ public class Main {
 
             if (account != null) {
 
-                if(encoder().matches(account.password, password)){
-                    LOGGER.debug("Matches");
+                if(encoder().matches(password, account.password)){
+
                     ctx.cookieStore().set("id", account.accountId);
                     ctx.cookieStore().set("role", account.role);
+                    LOGGER.debug(Optional.ofNullable(ctx.cookieStore().get("id")));
+                    LOGGER.debug(Optional.ofNullable(ctx.cookieStore().get("role")));
 
                     ctx.redirect("/index.html");
                 }
@@ -56,7 +59,6 @@ public class Main {
     };
 
     public static Handler handleRegister = ctx -> {
-        LOGGER.debug("test");
 
         final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$";
         final Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
@@ -66,33 +68,30 @@ public class Main {
         int age = Integer.parseInt(Objects.requireNonNull(ctx.formParam("age")));
 
         if(name == null ||  password == null){
-            // Show that data isn't valid somehow.
+            // TODO: Show that data isn't valid somehow.
             LOGGER.debug("Name or Password is empty.");
             return;
         }
         if(age < 18){
-            // Ask to enter valid age
+            // TODO: Ask to enter valid age
             LOGGER.debug("Invalid Age entered.");
             return;
         }
         if(password.isEmpty() || !pattern.matcher(password).matches()){
-            // Password not valid, return.
-            // Ask to enter valid age
+            // TODO: Password not valid, return.
             LOGGER.debug("Weak or empty Password.");
-            return;
         }
-        try{
+        else{
             String encodedPassword = encoder().encode(password);
             addAccount(name, encodedPassword, age);
-        }finally {
             ctx.redirect("/login.html");
-            LOGGER.debug("Failed");
         }
+
     };
 
 
     public static void addAccount(String name, String password, int age) {
-
+        String role = name.equals("Brian") ? "ROLE_ADMIN" : "ROLE_USER";
         Account newAccount = new Account(name, "user", password,  age, 0, accounts.size() + 1);
         accounts.add(newAccount);
 
