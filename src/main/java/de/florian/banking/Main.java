@@ -24,6 +24,16 @@ public class Main {
 
         app.get("/", ctx -> ctx.redirect("/index.html"));
 
+        app.post("/login", ctx -> {
+            // This gets an input field whenever a user posts a request
+            LOGGER.debug("output: {}", ctx.formParams("day"));
+        });
+
+        // This sends something back on a get-request
+        app.get("/input", ctx -> {
+            // some code
+            ctx.status(201);
+        });
 
         addAccount("Brian", 99);
         addAccount("Florian", 20);
