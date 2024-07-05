@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>BankSystem : Login</title>
+    <title>BankSystem : Register</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="style_login.css">
+    <link rel="stylesheet" href="style_register.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -13,19 +13,23 @@
     <div class="shape"></div>
 </div>
 <form method="post" action="/login">
-    <h3>Login</h3>
+    <h3>Register</h3>
 
-    <label for="account_id">Account ID</label>
-    <input type="number" name="account_id" value="0" placeholder="Your Account ID" id="account_id">
+    <label for="name">Name</label>
+    <input type="text" name="name"  placeholder="Your full name" id="name">
+
+    <label for="age">Age</label>
+    <input type="number" name="age"  placeholder="Your age" id="age">
 
     <label for="password">Password</label>
-    <input type="password" name="password"  placeholder="Password" id="password">
+    <input type="password" name="password"  placeholder="Secure Password" id="password">
 
-    <button>Log In</button>
+
+    <button>Register</button>
     <br><br>
     <div class="register">
-        <h4>You don't have an account yet?</h4>
-        <a href="/register">Register here</a>
+        <h4>Already have an account?</h4>
+        <a href="/login">Login here</a>
     </div>
 </form>
 </body>

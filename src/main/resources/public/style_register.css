@@ -16,31 +16,8 @@ body{
     left: 50%;
     top: 50%;
 }
-.background .shape{
-    height: 150px;
-    width: 2000px;
-    position: absolute;
-    border-radius: 20px;
-}
-.shape:first-child{
-    background: linear-gradient(
-            #7f94cd,
-            #1c4c58
-    );
-    left: -80px;
-    top: -80px;
-}
-.shape:last-child{
-    background: linear-gradient(
-            to right,
-            #283b72,
-            #63bebf
-    );
-    right: -30px;
-    bottom: -100px;
-}
 form{
-    height: 520px;
+    height: 540px;
     width: 400px;
     background-color: rgba(255,255,255,0.13);
     position: absolute;
@@ -48,10 +25,10 @@ form{
     top: 50%;
     left: 50%;
     border-radius: 20px;
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(105, 103, 103, 0.1);
     box-shadow: 0 0 40px rgba(8,7,16,0.6);
-    padding: 50px 35px;
+    padding: 30px 35px;
 }
 form *{
     font-family: 'Poppins',sans-serif;
@@ -69,7 +46,7 @@ form h3{
 
 label{
     display: block;
-    margin-top: 30px;
+    margin-top: 5px;
     font-size: 16px;
     font-weight: 500;
 }
@@ -97,6 +74,11 @@ button{
     font-weight: 600;
     border-radius: 5px;
     cursor: pointer;
+    transition-duration: 0.4s;
+}
+button:hover{
+    background-color: rgba(134, 134, 134, 0.48); /* Green */
+    color: white;
 }
 
 .register{

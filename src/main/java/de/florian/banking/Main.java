@@ -27,6 +27,8 @@ public class Main {
                 .start(7070);
 
         app.get("/", ctx -> ctx.redirect("/login.html"));
+        app.get("/register", ctx -> ctx.redirect("/register.html"));
+        app.get("/login", ctx -> ctx.redirect("/login.html"));
 
         app.post("/login", handleLogin);
         app.post("/register", handleRegister);
@@ -41,9 +43,8 @@ public class Main {
             Account account = getAccountById(Integer.parseInt(accountId));
 
             if (account != null) {
-                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-                if(encoder.matches(account.password, password)){
+                if(encoder().matches(account.password, password)){
                     LOGGER.debug("Matches");
                     ctx.cookieStore().set("id", account.accountId);
                     ctx.cookieStore().set("role", account.role);
@@ -55,6 +56,7 @@ public class Main {
     };
 
     public static Handler handleRegister = ctx -> {
+        LOGGER.debug("test");
 
         final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$";
         final Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
@@ -65,22 +67,26 @@ public class Main {
 
         if(name == null ||  password == null){
             // Show that data isn't valid somehow.
+            LOGGER.debug("Name or Password is empty.");
             return;
         }
-        if(age < 18 || age > 200){
+        if(age < 18){
             // Ask to enter valid age
+            LOGGER.debug("Invalid Age entered.");
             return;
         }
         if(password.isEmpty() || !pattern.matcher(password).matches()){
             // Password not valid, return.
+            // Ask to enter valid age
+            LOGGER.debug("Weak or empty Password.");
             return;
         }
         try{
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            String encodedPassword = encoder.encode(password);
+            String encodedPassword = encoder().encode(password);
             addAccount(name, encodedPassword, age);
         }finally {
             ctx.redirect("/login.html");
+            LOGGER.debug("Failed");
         }
     };
 
@@ -104,7 +110,7 @@ public class Main {
         return null;
     }
 
-    public PasswordEncoder encoder() {
+    public static PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
 
