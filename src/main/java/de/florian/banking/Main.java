@@ -20,7 +20,7 @@ public class Main {
     public static ArrayList<Account> accounts = new ArrayList<>();
     public static final Logger LOGGER = LogManager.getLogger();
 
-    public static void main(String[] args) {
+    public static void main() {
 
         Javalin app = Javalin.create(config -> {
                     config.staticFiles.add("/public", Location.CLASSPATH);
@@ -92,7 +92,7 @@ public class Main {
 
     public static void addAccount(String name, String password, int age) {
         String role = name.equals("Brian") ? "ROLE_ADMIN" : "ROLE_USER";
-        Account newAccount = new Account(name, "user", password,  age, 0, accounts.size() + 1);
+        Account newAccount = new Account(name, role, password,  age, 0, accounts.size() + 1);
         accounts.add(newAccount);
 
         LOGGER.debug("New account added: {} with ID: {}", newAccount.name, newAccount.accountId);
