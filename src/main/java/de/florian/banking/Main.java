@@ -36,8 +36,6 @@ public class Main {
         // Handles Post Requests
         app.post("/login", handleLogin);
         app.post("/register", handleRegister);
-
-
     }
 
     public static Handler handleLogin = ctx -> {
