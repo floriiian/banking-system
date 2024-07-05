@@ -11,6 +11,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class Main {
@@ -30,30 +33,67 @@ public class Main {
         app.post("/login", handleLogin);
     }
 
-    private static final Handler handleLogin = ctx -> {
+    public static Handler handleLogin = ctx -> {
         String accountId = ctx.formParam("account_id");
         String password = ctx.formParam("password");
-
-        LOGGER.debug(accountId);
-        LOGGER.debug(password);
 
         if (accountId != null && password != null) {
             Account account = getAccountById(Integer.parseInt(accountId));
 
             if (account != null) {
-                if (data[1].equals(accountId)) {
-                    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-                    encoder.encode(data[2]).;
+                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+                if(encoder.matches(account.password, password)){
+                    LOGGER.debug("Matches");
+                    ctx.cookieStore().set("id", account.accountId);
+                    ctx.cookieStore().set("role", account.role);
+
+                    ctx.redirect("/index.html");
                 }
             }
-
         }
+    };
+
+    public static Handler handleRegister = ctx -> {
+
+
+        final String PASSWORD_PATTERN =
+                "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$";
+        final Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
+
+
+        String name = ctx.formParam("name");
+        String password = ctx.formParam("password");
+        int age = Integer.parseInt(Objects.requireNonNull(ctx.formParam("age")));
+
+        if(name == null ||  password == null){
+            // Show that data isn't valid somehow.
+            return;
+        }
+        if(age < 18 || age > 200){
+            // Ask to enter valid age
+            return;
+        }
+        if(password.isEmpty() || !pattern.matcher(password).matches()){
+            // Password not valid, return.
+            return;
+        }
+
+
+
+
+        addAccount(name, password, age);
+
     };
 
 
 
-    public static void addAccount(String name, int age) {
-        Account newAccount = new Account(name, age, 0, accounts.size() + 1);
+
+
+    public static void addAccount(String name, String password, int age) {
+
+
+        Account newAccount = new Account(name, "user", password,  age, 0, accounts.size() + 1);
         accounts.add(newAccount);
 
         LOGGER.debug("New account added: {} with ID: {}", newAccount.name, newAccount.accountId);
