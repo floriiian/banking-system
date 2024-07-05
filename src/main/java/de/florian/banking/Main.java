@@ -12,9 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 public class Main {
 
@@ -31,7 +29,9 @@ public class Main {
         app.get("/", ctx -> ctx.redirect("/login.html"));
 
         app.post("/login", handleLogin);
+        app.post("/register", handleRegister);
     }
+
 
     public static Handler handleLogin = ctx -> {
         String accountId = ctx.formParam("account_id");
@@ -56,11 +56,8 @@ public class Main {
 
     public static Handler handleRegister = ctx -> {
 
-
-        final String PASSWORD_PATTERN =
-                "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$";
+        final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$";
         final Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
-
 
         String name = ctx.formParam("name");
         String password = ctx.formParam("password");
@@ -78,20 +75,17 @@ public class Main {
             // Password not valid, return.
             return;
         }
-
-
-
-
-        addAccount(name, password, age);
-
+        try{
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            String encodedPassword = encoder.encode(password);
+            addAccount(name, encodedPassword, age);
+        }finally {
+            ctx.redirect("/login.html");
+        }
     };
 
 
-
-
-
     public static void addAccount(String name, String password, int age) {
-
 
         Account newAccount = new Account(name, "user", password,  age, 0, accounts.size() + 1);
         accounts.add(newAccount);
@@ -101,6 +95,7 @@ public class Main {
 
     // Gets an account by ID
     public static Account getAccountById(int accountId){
+
         for(Account account : accounts){
             if(account.accountId == accountId){
                 return account;
