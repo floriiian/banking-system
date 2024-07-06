@@ -12,16 +12,18 @@
     <div class="shape"></div>
     <div class="shape"></div>
 </div>
-<form method="post" action="/login">
-    <h3>Login</h3>
+<form id="loginForm">
 
+    <div id="toasts"></div>
+
+    <h3>Login</h3>
     <label for="account_id">Account ID</label>
     <input type="number" name="account_id" value="0" placeholder="Your Account ID" id="account_id">
 
     <label for="password">Password</label>
     <input type="password" name="password"  placeholder="Password" id="password">
 
-    <button>Log In</button>
+    <button id="loginButton">Log In</button>
     <br><br>
     <div class="register">
         <h4>You don't have an account yet?</h4>
@@ -29,4 +31,5 @@
     </div>
 </form>
 </body>
+<script src="login_script.js"></script>
 </html>

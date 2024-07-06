@@ -1,9 +1,4 @@
-
-
 document.addEventListener("DOMContentLoaded", function(){
-
-
-
 
     // types = 'info, 'success', 'error'];
     const toasts = document.getElementById('toasts');
@@ -27,8 +22,9 @@ document.addEventListener("DOMContentLoaded", function(){
 
     const xmlhttp = new XMLHttpRequest();
 
-    let form = document.getElementById("registerForm");
-    form.addEventListener("submit", event => {
+    let registerForm = document.getElementById("registerForm");
+
+    registerForm.addEventListener("submit", event => {
         event.preventDefault();
     })
 

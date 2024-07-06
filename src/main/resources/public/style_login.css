@@ -86,3 +86,40 @@ button:hover{
 .register{
     text-align: center;
 }
+
+
+#toasts {
+    align-items: center;
+    left: 400px;
+    top: -3px;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+}
+
+.toast {
+    border-radius: 10px;
+    color: #000000;
+    margin: 0.3rem;
+    height: 80px;
+    width: 222px;
+    text-align: center;
+    font-size: 15px;
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(105, 103, 103, 0.1);
+    box-shadow: 0 0 40px rgba(8,7,16,0.6);
+    padding: 20px 15px;
+}
+
+.toast.info {
+    background-color: #9d9d9d;
+}
+
+.toast.success {
+    background-color: #42aa5f;
+}
+
+.toast.error {
+    background-color: #ae3f3f;
+}
+

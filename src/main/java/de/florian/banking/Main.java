@@ -22,7 +22,6 @@ public class Main {
     public static ArrayList<Account> accounts = new ArrayList<>();
     public static final Logger LOGGER = LogManager.getLogger();
 
-
     public static void main() {
 
         Javalin app = Javalin.create(config -> {
@@ -44,21 +43,32 @@ public class Main {
     }
 
     public static Handler handleLogin = ctx -> {
-        String accountId = ctx.formParam("account_id");
-        String password = ctx.formParam("password");
 
-        if (accountId != null && password != null) {
-            Account account = getAccountById(Integer.parseInt(accountId));
+        // Get Parameters, check them, show errors
 
-            if (account != null) {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(ctx.body());
 
-                if(encoder().matches(password, account.password)){
+        String accountId = node.get("accountId").asText();
+        String password = node.get("password").asText();
 
-                    ctx.cookieStore().set("id", account.accountId);
-                    ctx.cookieStore().set("role", account.role);
-
-                    ctx.redirect("/index.html");
-                }
+        if(accountId.isEmpty() || Objects.requireNonNull(password).isEmpty()){
+            ctx.result("INSUFFICIENT_DATA");
+            return;
+        }
+        Account account = getAccountById(Integer.parseInt(accountId));
+        if (account == null) {
+            ctx.result("ACCOUNT_NOT_FOUND");
+            return;
+        }
+        else{
+            if(!encoder().matches(password, account.password)){
+                ctx.result("INVALID_CREDENTIALS");
+            }
+            else{
+                ctx.cookieStore().set("id", account.accountId);
+                ctx.cookieStore().set("role", account.role);
+                ctx.result("LOGIN_SUCCESSFUL");
             }
         }
     };
@@ -77,28 +87,27 @@ public class Main {
 
         assert name != null;
         if(name.isEmpty() || Objects.requireNonNull(password).isEmpty() || Objects.requireNonNull(age).isEmpty()){
-            // TODO: Show that data isn't valid somehow.
             ctx.result("INSUFFICIENT_DATA");
             return;
         }
         if(!age.matches(("[0-9]+")) || Integer.parseInt(age) < 18){
-            // TODO: Ask to enter valid age
             ctx.result("INVALID_AGE");
             return;
         }
         if(!pattern.matcher(password).matches()){
-            // TODO: Password not valid, return.
             ctx.result("WEAK_PASSWORD");
         }
         else{
             String encodedPassword = encoder().encode(password);
             Integer id = addAccount(name, encodedPassword, Integer.parseInt(age));
+
             ctx.result("REGISTRATION_SUCCESSFUL:" + id);
         }
     };
 
 
     public static int addAccount(String name, String password, int age) {
+
         String role = name.equals("Brian") ? "ROLE_ADMIN" : "ROLE_USER";
         Account newAccount = new Account(name, role, password,  age, 0, accounts.size() + 1);
         accounts.add(newAccount);
