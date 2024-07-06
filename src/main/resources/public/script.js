@@ -1,4 +1,5 @@
 
+
 document.addEventListener("DOMContentLoaded", function(){
 
     const registerButton =
@@ -17,18 +18,20 @@ document.addEventListener("DOMContentLoaded", function(){
         let age = document.getElementById("age").value;
         let password = document.getElementById("password").value;
 
-        const registerResponse = xmlhttp.responseText;
         const payload = {
             "name": name,
             "age": age,
             "password": password
         };
 
-        xmlhttp.open("POST", "localhost:7070/register");
+        xmlhttp.open("POST", "http://localhost:7070/register");
         xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
         // After the request is done
         xmlhttp.onload = function() {
+            if (xmlhttp.readyState !== XMLHttpRequest.DONE) {
+                return;
+            }
             if (xmlhttp.status >= 200 && xmlhttp.status < 300) {
                 console.log("Register-Response: ", xmlhttp.responseText);
             } else {
@@ -37,7 +40,6 @@ document.addEventListener("DOMContentLoaded", function(){
         };
 
         xmlhttp.send(JSON.stringify(payload));
-        console.log("Register Response: ", registerResponse);
     };
 });
 

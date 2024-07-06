@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Handler;
 import io.javalin.http.staticfiles.Location;
+import io.javalin.plugin.bundled.CorsPluginConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,8 +27,11 @@ public class Main {
 
         Javalin app = Javalin.create(config -> {
                     config.staticFiles.add("/public", Location.CLASSPATH);
-                })
-                .start(7070);
+                    config.bundledPlugins.enableCors(cors -> {
+                        cors.addRule(CorsPluginConfig.CorsRule::anyHost);
+                    });
+        }).start(7070);
+
 
 
         app.get("/", ctx -> ctx.redirect("/login.html"));
@@ -65,7 +69,7 @@ public class Main {
         final Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
 
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode node = mapper.readTree(ctx.result());
+        JsonNode node = mapper.readTree(ctx.body());
 
         String name = node.get("name").asText();
         String password = node.get("password").asText();
