@@ -33,8 +33,24 @@ document.addEventListener("DOMContentLoaded", function(){
                 return;
             }
             if (xmlhttp.status >= 200 && xmlhttp.status < 300) {
-                console.log("Register-Response: ", xmlhttp.responseText);
-            } else {
+
+                console.log(xmlhttp.responseText);
+                switch(xmlhttp.responseText) {
+                    case "INSUFFICIENT_DATA":
+                        // TODO: Handle
+                        break;
+                    case "REGISTRATION_SUCCESSFUL":
+                        // TODO: Handle
+                        break;
+                    case "WEAK_PASSWORD":
+                        // TODO: Handle
+                        break;
+                    case "INVALID_AGE":
+                        // TODO: Handle
+                        break;
+                }
+            }
+            else {
                 console.error("Request failed: ", xmlhttp.status);
             }
         };

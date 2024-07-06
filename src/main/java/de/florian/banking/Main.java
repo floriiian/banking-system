@@ -75,26 +75,29 @@ public class Main {
         String password = node.get("password").asText();
         String age = node.get("age").asText();
 
-        LOGGER.debug(name, password, age);
+        LOGGER.debug(name);
+        LOGGER.debug(password);
+        LOGGER.debug(age);
 
         assert name != null;
         if(name.isEmpty() || Objects.requireNonNull(password).isEmpty() || Objects.requireNonNull(age).isEmpty()){
             // TODO: Show that data isn't valid somehow.
-            LOGGER.debug("Name, password or age is empty.");
+            ctx.result("INSUFFICIENT_DATA");
             return;
         }
         if(Integer.parseInt(age) < 18){
             // TODO: Ask to enter valid age
-            LOGGER.debug("Invalid Age entered.");
+            ctx.result("INVALID_AGE");
             return;
         }
         if(!pattern.matcher(password).matches()){
             // TODO: Password not valid, return.
-            LOGGER.debug("Too weak Password.");
+            ctx.result("WEAK_PASSWORD");
         }
         else{
             String encodedPassword = encoder().encode(password);
             addAccount(name, encodedPassword, Integer.parseInt(age));
+            ctx.result("REGISTRATION_SUCCESSFUL");
             // ctx.redirect("/login.html");
         }
     };
