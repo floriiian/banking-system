@@ -85,7 +85,7 @@ public class Main {
             ctx.result("INSUFFICIENT_DATA");
             return;
         }
-        if(Integer.parseInt(age) < 18){
+        if(!age.matches("[0-9]") || Integer.parseInt(age) < 18){
             // TODO: Ask to enter valid age
             ctx.result("INVALID_AGE");
             return;
