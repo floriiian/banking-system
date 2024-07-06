@@ -75,17 +75,13 @@ public class Main {
         String password = node.get("password").asText();
         String age = node.get("age").asText();
 
-        LOGGER.debug(name);
-        LOGGER.debug(password);
-        LOGGER.debug(age);
-
         assert name != null;
         if(name.isEmpty() || Objects.requireNonNull(password).isEmpty() || Objects.requireNonNull(age).isEmpty()){
             // TODO: Show that data isn't valid somehow.
             ctx.result("INSUFFICIENT_DATA");
             return;
         }
-        if(!age.matches("[0-9]") || Integer.parseInt(age) < 18){
+        if(!age.matches(("[0-9]+")) || Integer.parseInt(age) < 18){
             // TODO: Ask to enter valid age
             ctx.result("INVALID_AGE");
             return;
@@ -96,19 +92,19 @@ public class Main {
         }
         else{
             String encodedPassword = encoder().encode(password);
-            addAccount(name, encodedPassword, Integer.parseInt(age));
-            ctx.result("REGISTRATION_SUCCESSFUL");
-            // ctx.redirect("/login.html");
+            Integer id = addAccount(name, encodedPassword, Integer.parseInt(age));
+            ctx.result("REGISTRATION_SUCCESSFUL:" + id);
         }
     };
 
 
-    public static void addAccount(String name, String password, int age) {
+    public static int addAccount(String name, String password, int age) {
         String role = name.equals("Brian") ? "ROLE_ADMIN" : "ROLE_USER";
         Account newAccount = new Account(name, role, password,  age, 0, accounts.size() + 1);
         accounts.add(newAccount);
 
         LOGGER.debug("New account added: {} with ID: {}", newAccount.name, newAccount.accountId);
+        return newAccount.accountId;
     }
 
     // Gets an account by ID

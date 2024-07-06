@@ -2,6 +2,26 @@
 
 document.addEventListener("DOMContentLoaded", function(){
 
+
+
+
+    // types = 'info, 'success', 'error'];
+    const toasts = document.getElementById('toasts');
+
+    function createNotification(type = null, message = null) {
+        const notification = document.createElement('div');
+        notification.classList.add('toast');
+        notification.classList.add(type);
+
+        notification.innerText = message;
+
+        toasts.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
     const registerButton =
         document.getElementById("registerButton");
 
@@ -35,27 +55,41 @@ document.addEventListener("DOMContentLoaded", function(){
             if (xmlhttp.status >= 200 && xmlhttp.status < 300) {
 
                 console.log(xmlhttp.responseText);
-                switch(xmlhttp.responseText) {
+
+                let response = xmlhttp.responseText.split(":");
+
+                switch(response[0]) {
                     case "INSUFFICIENT_DATA":
+                        // TODO: Handle
+                        createNotification("info", "Youre missing data.");
+                        break;
+
+                    case "WEAK_PASSWORD":
+                        // TODO: Handle
+                        createNotification('info', "Your password is too weak.");
+                        break;
+                    case "INVALID_AGE":
+                        createNotification('info', "You must be at least 18 years old to use this service.");
                         // TODO: Handle
                         break;
                     case "REGISTRATION_SUCCESSFUL":
-                        // TODO: Handle
-                        break;
-                    case "WEAK_PASSWORD":
-                        // TODO: Handle
-                        break;
-                    case "INVALID_AGE":
-                        // TODO: Handle
-                        break;
+                    // TODO: Handle
+                    createNotification('success', "You have successfully registered with the ID: " + response[1]);
+                        setTimeout(function(){
+                            window.location.replace("http://localhost:7070/login");
+                        }, 3000);
+                    break;
                 }
             }
             else {
                 console.error("Request failed: ", xmlhttp.status);
+                createNotification('error', "Server Error");
             }
         };
 
         xmlhttp.send(JSON.stringify(payload));
     };
+
+
 });
 
