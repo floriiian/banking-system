@@ -1,7 +1,5 @@
 package de.florian.banking;
 
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Handler;
@@ -15,7 +13,6 @@ import io.javalin.Javalin;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -36,8 +33,6 @@ public class Main {
                         cors.addRule(CorsPluginConfig.CorsRule::anyHost);
                     });
         }).start(7070);
-
-
 
         app.get("/", ctx -> ctx.redirect("/login.html"));
         app.get("/register", ctx -> ctx.redirect("/register.html"));
@@ -61,7 +56,8 @@ public class Main {
     }
 
     public static Handler handleLogout = ctx -> {
-        ctx.cookieStore().clear();
+        ctx.cookieStore().set("id", 0);
+        ctx.cookieStore().set("role", "");
         ctx.redirect("/login.html");
     };
 
@@ -70,7 +66,6 @@ public class Main {
             ctx.status(500);
         }
     };
-
 
     public static Handler handleGetTransactions = ctx -> {
 
@@ -81,7 +76,12 @@ public class Main {
             if (transaction[0].equals(accountId.toString())){
                 String receiver = transaction[1];
                 String amount = transaction[2];
-                transactionLines = transactionLines.concat("<h4>ReceiverID: " + receiver + " Amount: " + amount + "</h4>");
+                transactionLines = transactionLines.concat("<h4>Receiver-ID: " + receiver + " : Amount: $" + amount + "</h4>");
+            }
+            else if(transaction[1].equals(accountId.toString())){
+                String sender = transaction[0];
+                String amount = transaction [2];
+                transactionLines = transactionLines.concat("<h4>Sender-ID: " + sender + " : Amount: $" + amount + "</h4>");
             }
         }
         ctx.result(transactionLines);
@@ -125,6 +125,10 @@ public class Main {
         }
         if (getAccountById(accountId) != null && getAccountById(accountId).balance < Long.parseLong(transferAmount)) {
             ctx.result("INSUFFICIENT_FUNDS");
+            return;
+        }
+        if(accountId == Integer.parseInt(recipientId)){
+            ctx.result("SAME_ID");
         }
         else{
             getAccountById(Integer.parseInt(recipientId)).addBalance(Long.parseLong(transferAmount));
@@ -195,7 +199,6 @@ public class Main {
     public static Handler handleLogin = ctx -> {
 
         // Get Parameters, check them, show errors
-
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.readTree(ctx.body());
 
@@ -253,7 +256,6 @@ public class Main {
             ctx.result("REGISTRATION_SUCCESSFUL:" + id);
         }
     };
-
 
     public static int addAccount(String name, String password, int age) {
 

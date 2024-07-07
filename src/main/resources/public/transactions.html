@@ -16,16 +16,13 @@
 
     <div id="toasts"></div>
 
-    <h3 style="height: 50px">Your Transactions</h3>
-    <div id="transactions">
-    <h4>ReceiverID: 2 Amount: $2000</h4>
-        <h4>ReceiverID: 2 Amount: $2000</h4>
-
+    <h3 style="height: 70px">Your Transactions</h3>
+    <div style="text-align: center;" id="transactions">
     </div>
     <br><br>
     <div class="register">
-        <h4 >Done whining about your spending?</h4>
-        <a href="/index">Go back</a>
+        <h4 style=" top: 480px; position: relative; text-align: center;"  >Done whining about your spending?</h4>
+        <a style=" top: 480px; position: relative" href="/index" >Go back</a>
     </div>
 </form>
 </body>
@@ -57,7 +54,7 @@
                 const text = getTransactionsRequest.responseText;
                 console.log(text);
                 if(text < 1){
-                    document.getElementById('transactions').innerHTML = "<h1>No recorded transactions yet.</h1>";
+                    document.getElementById('transactions').innerHTML = "<h4>No recorded transactions yet.</h4>";
                 }
                 else{
                     document.getElementById('transactions').innerHTML = text;

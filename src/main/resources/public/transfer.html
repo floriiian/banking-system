@@ -114,6 +114,9 @@
                         case "INVALID_AMOUNT":
                             createNotification('error', "That's not a valid amount.");
                             break;
+                        case "SAME_ID":
+                            createNotification('error', "Don't use your own ID.");
+                            break;
                         case "SUCCESSFUL_TRANSACTION":
                             createNotification('success', "You have sent " + "$" + amount + " to " + recipientID);
                             break;
