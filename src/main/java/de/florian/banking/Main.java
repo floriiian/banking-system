@@ -13,6 +13,7 @@ import io.javalin.Javalin;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.regex.Pattern;
 public class Main {
 
     public static ArrayList<Account> accounts = new ArrayList<>();
+    public static ArrayList<String[] > transactions = new ArrayList<>();
     public static final Logger LOGGER = LogManager.getLogger();
 
     public static void main() {
@@ -40,6 +42,7 @@ public class Main {
         app.get("/login", ctx -> ctx.redirect("/login.html"));
         app.get("/index", ctx -> {ctx.redirect("/index.html");});
         app.get("/transfer", ctx -> {ctx.redirect("/transfer.html");});
+        app.get("/deposit", ctx -> {ctx.redirect("/deposit.html");});
 
         // Handles Get Requests
         app.get("/get_balance", handleGetBalance);
@@ -50,6 +53,7 @@ public class Main {
         app.post("/login", handleLogin);
         app.post("/register", handleRegister);
         app.post("transfer", handleTransferMoney);
+        app.post("/deposit", handleDepositMoney);
     }
 
     public static Handler handleLogout = ctx -> {
@@ -104,9 +108,56 @@ public class Main {
         }
         else{
             getAccountById(Integer.parseInt(recipientId)).addBalance(Long.parseLong(transferAmount));
+            getAccountById(accountId).removeBalance(Long.parseLong(transferAmount));
+
+            // Add Transaction to transactions
+
+            String[] transaction = {accountId.toString(), recipientId, "-" + transferAmount};
+            transactions.add(transaction);
             ctx.result("SUCCESSFUL_TRANSACTION");
         }
     };
+
+    public static Handler handleDepositMoney = ctx -> {
+
+        Integer accountId = ctx.cookieStore().get("id");
+        String role = ctx.cookieStore().get("role");
+        if (!hasCookies(accountId, role)) {
+            ctx.result("NOT_LOGGED_IN");
+            return;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(ctx.body());
+
+        String depositAmount = node.get("depositAmount").asText();
+
+
+        if (!depositAmount.matches(("[0-9]+")) ) {
+            ctx.result("INVALID_AMOUNT");
+            return;
+        }
+        else if(Long.parseLong(depositAmount) <= 0){
+            ctx.result("INVALID_AMOUNT");
+            return;
+        }
+        else{
+            getAccountById(accountId).addBalance(Long.parseLong(depositAmount));
+            ctx.result("SUCCESSFUL_DEPOSIT");
+        }
+    };
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     public static Handler handleGetBalance = ctx -> {
