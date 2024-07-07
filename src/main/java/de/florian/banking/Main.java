@@ -38,27 +38,35 @@ public class Main {
         app.get("/", ctx -> ctx.redirect("/login.html"));
         app.get("/register", ctx -> ctx.redirect("/register.html"));
         app.get("/login", ctx -> ctx.redirect("/login.html"));
+        app.get("/logout", handleLogout);
 
         // Handles Get Requests
-        app.get("/index", handleIndex);
+        app.get("/index", ctx -> {ctx.redirect("/index.html");});
+        app.get("/get_index", handleIndex);
+
 
         // Handles Post Requests
         app.post("/login", handleLogin);
         app.post("/register", handleRegister);
     }
 
+    public static Handler handleLogout = ctx -> {
+        ctx.cookieStore().clear();
+        ctx.redirect("/login.html");
+    };
+
+
     public static Handler handleIndex = ctx -> {
-        ctx.redirect("/index.html");
-        String accountId = ctx.cookieStore().get("id");
+        Integer accountId = ctx.cookieStore().get("id");
         String role = ctx.cookieStore().get("role");
 
-        if(accountId == null || role == null) {
+        if(accountId == null || role.isEmpty() || getAccountById((accountId)) == null) {
+            LOGGER.debug("Account not found.");
             ctx.result("NOT_LOGGED_IN");
-            ctx.redirect("/login.html");
             return;
         }
 
-        Account userAccount = getAccountById(Integer.parseInt(accountId));
+        Account userAccount = getAccountById((accountId));
 
         assert userAccount != null;
         Long balance = userAccount.balance;
@@ -66,16 +74,7 @@ public class Main {
         DecimalFormat formatter = new DecimalFormat("$#,##0.00");
         BigDecimal amt = new BigDecimal(balance);
 
-        switch(role){
-            case "ROLE_ADMIN":
-                ctx.result(formatter.format(amt) + "ROLE_ADMIN");
-
-            case "ROLE_USER":
-
-        }
         ctx.result(formatter.format(amt) + ":" + role);
-
-
     };
 
 
