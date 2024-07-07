@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>BankSystem : Transfer</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="background">
+    <div class="shape"></div>
+    <div class="shape"></div>
+</div>
+<form style="height:450px" id="transferForm">
+
+    <div id="toasts"></div>
+
+    <h3 style="height: 50px">Transfer Money</h3>
+    <label for="recipient_id">Recipient ID</label>
+    <input type="number" name="recipient_id" value="1" min="1" placeholder="Your Account ID" id="recipient_id">
+
+    <label for="amount">Amount</label>
+    <input type="number" name="amount"  placeholder="$" id="amount">
+
+    <button id="transferButton">Transfer</button>
+    <br><br>
+    <div class="register">
+        <h4 >Done making transactions?</h4>
+        <a href="/index">Go back</a>
+    </div>
+</form>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+
+        function createNotification(type = null, message = null) {
+            const notification = document.createElement('div');
+            notification.classList.add('toast');
+            notification.classList.add(type);
+
+            notification.innerText = message;
+
+            toasts.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // types = 'info, 'success', 'error'];
+        const toasts = document.getElementById('toasts');
+
+        const transferButton =
+            document.getElementById("transferButton");
+
+        let transferForm = document.getElementById("transferForm");
+
+        transferForm.addEventListener("submit", event => {
+            event.preventDefault();
+        })
+
+
+        const loginRequest = new XMLHttpRequest();
+        // Check if logged in.
+        loginRequest.open("GET", "/check_login");
+        loginRequest.onload = function() {
+            if (loginRequest.readyState !== XMLHttpRequest.DONE) {
+                return;
+            }
+            if (loginRequest.status >= 200 && loginRequest.status < 300) {
+                if (loginRequest.status === 500){
+                    window.location.replace("http://localhost:7070/login");
+                }
+            }
+        }
+        loginRequest.send();
+
+        const transferRequest = new XMLHttpRequest();
+
+        transferButton.onclick = function(){
+
+            let recipientID = document.getElementById("recipient_id").value;
+            let amount = document.getElementById("amount").value;
+
+            const payload = {
+                "recipientID": recipientID,
+                "transferAmount": amount
+            };
+
+            transferRequest.open("POST", "http://localhost:7070/transfer");
+            transferRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+            // After the request is done
+            transferRequest.onload = function() {
+                if (transferRequest.readyState !== XMLHttpRequest.DONE) {
+                    return;
+                }
+                if (transferRequest.status >= 200 && transferRequest.status < 300) {
+
+                    let response = transferRequest.responseText.split(":");
+
+                    switch(response[0]) {
+                        case "INSUFFICIENT_DATA":
+                            createNotification("info", "You are missing data.");
+                            break;
+
+                        case "INVALID_RECIPIENT_ID":
+                            createNotification('info', "There is no account with the ID: " + recipientID);
+                            break;
+                        case "INSUFFICIENT_FUNDS":
+                            createNotification('error', "You don't have enough funds.");
+                            break;
+                        case "INVALID_AMOUNT":
+                            createNotification('error', "That's not a valid amount.");
+                            break;
+                        case "SUCCESSFUL_TRANSACTION":
+                            createNotification('success', "You have sent " + "$" + amount + " to " + recipientID);
+                            break;
+                    }
+                }
+                else {
+                    console.error("Request failed: ", transferRequest.status);
+                    createNotification('error', "Server Error");
+                }
+            };
+            transferRequest.send(JSON.stringify(payload));
+        };
+    });
+
+</script>
+</html>

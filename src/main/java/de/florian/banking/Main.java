@@ -1,5 +1,7 @@
 package de.florian.banking;
 
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Handler;
@@ -43,9 +45,11 @@ public class Main {
         app.get("/index", ctx -> {ctx.redirect("/index.html");});
         app.get("/transfer", ctx -> {ctx.redirect("/transfer.html");});
         app.get("/deposit", ctx -> {ctx.redirect("/deposit.html");});
+        app.get("/transactions", ctx -> {ctx.redirect("/transactions.html");});
 
         // Handles Get Requests
         app.get("/get_balance", handleGetBalance);
+        app.get("/get_transactions", handleGetTransactions);
         app.get("/check_login", checkIfLoggedIn);
         app.get("/logout", handleLogout);
 
@@ -65,6 +69,22 @@ public class Main {
         if (!hasCookies( ctx.cookieStore().get("id"), ctx.cookieStore().get("role"))) {
             ctx.status(500);
         }
+    };
+
+
+    public static Handler handleGetTransactions = ctx -> {
+
+        Integer accountId = ctx.cookieStore().get("id");
+        String transactionLines = "";
+
+        for (String[] transaction : transactions) {
+            if (transaction[0].equals(accountId.toString())){
+                String receiver = transaction[1];
+                String amount = transaction[2];
+                transactionLines = transactionLines.concat("<h4>ReceiverID: " + receiver + " Amount: " + amount + "</h4>");
+            }
+        }
+        ctx.result(transactionLines);
     };
 
     public static Handler handleTransferMoney = ctx -> {
@@ -112,7 +132,7 @@ public class Main {
 
             // Add Transaction to transactions
 
-            String[] transaction = {accountId.toString(), recipientId, "-" + transferAmount};
+            String[] transaction = {accountId.toString(), recipientId, transferAmount};
             transactions.add(transaction);
             ctx.result("SUCCESSFUL_TRANSACTION");
         }
@@ -146,19 +166,6 @@ public class Main {
             ctx.result("SUCCESSFUL_DEPOSIT");
         }
     };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public static Handler handleGetBalance = ctx -> {
         Integer accountId = ctx.cookieStore().get("id");
