@@ -14,7 +14,7 @@
     <h1 style="text-align: start">Balance</h1>
     <h2 id="balance"></h2>
     <button style="margin-top: 20px" id="depositButton">Send Money</button>
-    <button style="margin-top: 20px" id="sendMoneyButton">Add Money</button>
+    <button style="margin-top: 20px" id="sendMoneyButton">Deposit Money</button>
     <button style="margin-top: 20px" id="transactionButton">My Transactions</button>
     <br><br>
     <div class="register">
@@ -37,7 +37,7 @@
         const adminPanel = document.getElementById("adminPanel")
         const xmlhttp = new XMLHttpRequest();
 
-        xmlhttp.open("GET", "http://localhost:7070/get_index");
+        xmlhttp.open("GET", "http://localhost:7070/get_balance");
 
         xmlhttp.onload = function() {
             if (xmlhttp.readyState !== XMLHttpRequest.DONE) {

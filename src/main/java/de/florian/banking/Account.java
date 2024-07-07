@@ -31,8 +31,8 @@ public class Account {
         this.role = role;
     }
 
-    public void setBalance(long balance) {
-        this.balance = balance;
+    public void addBalance(long balance) {
+        this.balance += balance;
     }
     public void setPassword(String password) {
         this.password = password;

@@ -38,16 +38,17 @@ public class Main {
         app.get("/", ctx -> ctx.redirect("/login.html"));
         app.get("/register", ctx -> ctx.redirect("/register.html"));
         app.get("/login", ctx -> ctx.redirect("/login.html"));
-        app.get("/logout", handleLogout);
+        app.get("/index", ctx -> {ctx.redirect("/index.html");});
+        app.get("/index?deposit", ctx -> ctx.redirect("/deposit.html"));
 
         // Handles Get Requests
-        app.get("/index", ctx -> {ctx.redirect("/index.html");});
-        app.get("/get_index", handleIndex);
-
+        app.get("/get_balance", handleGetBalance);
+        app.get("/logout", handleLogout);
 
         // Handles Post Requests
         app.post("/login", handleLogin);
         app.post("/register", handleRegister);
+        app.post("index?deposit", handleDeposit);
     }
 
     public static Handler handleLogout = ctx -> {
@@ -55,15 +56,56 @@ public class Main {
         ctx.redirect("/login.html");
     };
 
-
-    public static Handler handleIndex = ctx -> {
+    public static Handler handleDeposit = ctx -> {
         Integer accountId = ctx.cookieStore().get("id");
         String role = ctx.cookieStore().get("role");
 
-        if(accountId == null || role.isEmpty() || getAccountById((accountId)) == null) {
-            LOGGER.debug("Account not found.");
+        if (!hasCookies(accountId, role)) {
             ctx.result("NOT_LOGGED_IN");
             return;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(ctx.body());
+
+        String recipientId = node.get("recipientId").asText();
+        String transferAmount = node.get("transferAmount").asText();
+
+        if (recipientId.isEmpty() || transferAmount.isEmpty()) {
+            ctx.result("INSUFFICIENT_DATA");
+            return;
+        }
+
+        if (!recipientId.matches("\\d+")) {
+            ctx.result("INVALID_RECIPIENT_ID");
+            return;
+        } else if (getAccountById(Integer.parseInt(recipientId)) == null) {
+            ctx.result("INVALID_RECIPIENT_ID");
+            return;
+        }
+
+        if (!transferAmount.matches(("[0-9]+"))) {
+            ctx.result("INVALID_AMOUNT");
+            return;
+        }
+
+        if (getAccountById(accountId) != null && getAccountById(accountId).balance < Long.parseLong(transferAmount)) {
+            ctx.result("INSUFFICIENT_FUNDS");
+        }
+        else{
+            getAccountById(Integer.parseInt(recipientId)).addBalance(Long.parseLong(transferAmount));
+            ctx.result("SUCCESSFUL_TRANSACTION");
+        }
+    };
+
+
+    public static Handler handleGetBalance = ctx -> {
+        Integer accountId = ctx.cookieStore().get("id");
+        String role = ctx.cookieStore().get("role");
+
+        if(!hasCookies(accountId, role)){
+            LOGGER.debug("Account not found.");
+            ctx.result("NOT_LOGGED_IN");
         }
 
         Account userAccount = getAccountById((accountId));
@@ -77,6 +119,9 @@ public class Main {
         ctx.result(formatter.format(amt) + ":" + role);
     };
 
+    public static boolean hasCookies(int accountId, String role){
+        return accountId != 0 && !role.isEmpty() && getAccountById((accountId)) != null;
+    }
 
     public static Handler handleLogin = ctx -> {
 
