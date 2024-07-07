@@ -1,3 +1,4 @@
+
 *,
 *:before,
 *:after{
@@ -77,7 +78,7 @@ button{
     transition-duration: 0.4s;
 }
 button:hover{
-    background-color: rgba(134, 134, 134, 0.48); /* Green */
+    background-color: rgba(208, 208, 208, 0.48); /* Green */
     color: white;
 }
 
@@ -118,4 +119,23 @@ button:hover{
 
 .toast.error {
     background-color: #ae3f3f;
+}
+
+body {
+    background: linear-gradient(-45deg, #bb912c, #242e6b, #e73c7e);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    height: 100vh;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }

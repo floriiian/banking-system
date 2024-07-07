@@ -13,6 +13,8 @@ import io.javalin.Javalin;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -37,10 +39,45 @@ public class Main {
         app.get("/register", ctx -> ctx.redirect("/register.html"));
         app.get("/login", ctx -> ctx.redirect("/login.html"));
 
+        // Handles Get Requests
+        app.get("/index", handleIndex);
+
         // Handles Post Requests
         app.post("/login", handleLogin);
         app.post("/register", handleRegister);
     }
+
+    public static Handler handleIndex = ctx -> {
+        ctx.redirect("/index.html");
+        String accountId = ctx.cookieStore().get("id");
+        String role = ctx.cookieStore().get("role");
+
+        if(accountId == null || role == null) {
+            ctx.result("NOT_LOGGED_IN");
+            ctx.redirect("/login.html");
+            return;
+        }
+
+        Account userAccount = getAccountById(Integer.parseInt(accountId));
+
+        assert userAccount != null;
+        Long balance = userAccount.balance;
+
+        DecimalFormat formatter = new DecimalFormat("$#,##0.00");
+        BigDecimal amt = new BigDecimal(balance);
+
+        switch(role){
+            case "ROLE_ADMIN":
+                ctx.result(formatter.format(amt) + "ROLE_ADMIN");
+
+            case "ROLE_USER":
+
+        }
+        ctx.result(formatter.format(amt) + ":" + role);
+
+
+    };
+
 
     public static Handler handleLogin = ctx -> {
 
@@ -59,7 +96,6 @@ public class Main {
         Account account = getAccountById(Integer.parseInt(accountId));
         if (account == null) {
             ctx.result("ACCOUNT_NOT_FOUND");
-            return;
         }
         else{
             if(!encoder().matches(password, account.password)){

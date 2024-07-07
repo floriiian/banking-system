@@ -1,30 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Test Site</title>
+    <title>BankSystem : Start</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-<h2>Make reservation:</h2>
-<form method="post" action="/make-reservation">
-    Choose day
-    <label>
-        <select name="day">
-            <option value="saturday">Saturday</option>
-            <option value="sunday">Sunday</option>
-        </select>
-    </label>
-    <br>
-    Choose time
-    <label>
-        <select name="time">
-            <option value="8:00 PM">8:00 PM</option>
-            <option value="9:00 PM">9:00 PM</option>
-        </select>
-    </label>
-    <br>
-    <button>Submit</button>
+<form style="height:420px;" id=registerForm">
+    <div id="toasts"></div>
+
+    <h1 style="text-align: start">Balance</h1>
+    <h2 id="">$2000</h2>
+    <button style="margin-top: 20px" id="depositButton">Send Money</button>
+    <button style="margin-top: 20px" id="sendMoneyButton">Deposit Money</button>
+    <button style="margin-top: 20px" id="transactionButton">My Transactions</button>
+    <br><br>
+    <div class="register">
+        <h4>Done? <a href="/logout">Logout</a></h4>
+    </div>
 </form>
 
+<div id="adminPanel">
+    <form style="height:80px; margin-top: 260px">
+        <button style=" padding: 10px;margin-top: -100px;margin-inline: 0px" id="adminButton">Admin Panel</button>
+    </form>
+</div>
+
+
 </body>
+<script src="register_script.js"></script>
 </html>

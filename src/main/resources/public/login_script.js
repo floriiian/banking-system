@@ -64,11 +64,9 @@ document.addEventListener("DOMContentLoaded", function(){
                         break;
                     case "INVALID_CREDENTIALS":
                         createNotification('error', "The given credentials do not match.");
-                        // TODO: Handle
                         break;
                     case "LOGIN_SUCCESSFUL":
-                    // TODO: Handle
-                    createNotification('success', "You have been successfully logged in.");
+                    createNotification('success', "You have been logged in.");
                         setTimeout(function(){
                             window.location.replace("http://localhost:7070/index");
                         }, 3000);
