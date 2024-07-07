@@ -13,8 +13,8 @@
 
     <h1 style="text-align: start">Balance</h1>
     <h2 id="balance"></h2>
-    <button style="margin-top: 20px" id="depositButton">Send Money</button>
-    <button style="margin-top: 20px" id="sendMoneyButton">Deposit Money</button>
+    <button style="margin-top: 20px" id="sendMoneyButton">Transfer Money</button>
+    <button style="margin-top: 20px" id="depositButton">Deposit Money</button>
     <button style="margin-top: 20px" id="transactionButton">My Transactions</button>
     <br><br>
     <div class="register">
@@ -55,9 +55,7 @@
                 if(response[0] === "NOT_LOGGED_IN"){
                     window.location.replace("http://localhost:7070/login");
                 }
-
                 balanceField.innerHTML = response[0];
-
             }
             else {
                 console.error("Request failed: ", xmlhttp.status);
@@ -71,7 +69,7 @@
 
         document.getElementById("sendMoneyButton").addEventListener("click", event => {
             event.preventDefault();
-            window.location.replace("http://localhost:7070/send_money");
+            window.location.replace("http://localhost:7070/transfer");
         });
 
         document.getElementById("depositButton").addEventListener("click", event => {

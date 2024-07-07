@@ -39,16 +39,17 @@ public class Main {
         app.get("/register", ctx -> ctx.redirect("/register.html"));
         app.get("/login", ctx -> ctx.redirect("/login.html"));
         app.get("/index", ctx -> {ctx.redirect("/index.html");});
-        app.get("/index?deposit", ctx -> ctx.redirect("/deposit.html"));
+        app.get("/transfer", ctx -> {ctx.redirect("/transfer.html");});
 
         // Handles Get Requests
         app.get("/get_balance", handleGetBalance);
+        app.get("/check_login", checkIfLoggedIn);
         app.get("/logout", handleLogout);
 
         // Handles Post Requests
         app.post("/login", handleLogin);
         app.post("/register", handleRegister);
-        app.post("index?deposit", handleDeposit);
+        app.post("transfer", handleTransferMoney);
     }
 
     public static Handler handleLogout = ctx -> {
@@ -56,10 +57,16 @@ public class Main {
         ctx.redirect("/login.html");
     };
 
-    public static Handler handleDeposit = ctx -> {
+    public static Handler checkIfLoggedIn = ctx -> {
+        if (!hasCookies( ctx.cookieStore().get("id"), ctx.cookieStore().get("role"))) {
+            ctx.status(500);
+        }
+    };
+
+    public static Handler handleTransferMoney = ctx -> {
+
         Integer accountId = ctx.cookieStore().get("id");
         String role = ctx.cookieStore().get("role");
-
         if (!hasCookies(accountId, role)) {
             ctx.result("NOT_LOGGED_IN");
             return;
@@ -68,7 +75,7 @@ public class Main {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.readTree(ctx.body());
 
-        String recipientId = node.get("recipientId").asText();
+        String recipientId = node.get("recipientID").asText();
         String transferAmount = node.get("transferAmount").asText();
 
         if (recipientId.isEmpty() || transferAmount.isEmpty()) {
@@ -84,11 +91,14 @@ public class Main {
             return;
         }
 
-        if (!transferAmount.matches(("[0-9]+"))) {
+        if (!transferAmount.matches(("[0-9]+")) ) {
             ctx.result("INVALID_AMOUNT");
             return;
         }
-
+        else if(Long.parseLong(transferAmount) <= 0){
+            ctx.result("INVALID_AMOUNT");
+            return;
+        }
         if (getAccountById(accountId) != null && getAccountById(accountId).balance < Long.parseLong(transferAmount)) {
             ctx.result("INSUFFICIENT_FUNDS");
         }
@@ -106,6 +116,7 @@ public class Main {
         if(!hasCookies(accountId, role)){
             LOGGER.debug("Account not found.");
             ctx.result("NOT_LOGGED_IN");
+            return;
         }
 
         Account userAccount = getAccountById((accountId));
