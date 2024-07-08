@@ -85,7 +85,6 @@
             xmlhttp.open("POST", "http://localhost:7070/deposit");
             xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
-            // After the request is done
             xmlhttp.onload = function() {
                 if (xmlhttp.readyState !== XMLHttpRequest.DONE) {
                     return;
@@ -116,6 +115,5 @@
             xmlhttp.send(JSON.stringify(payload));
         };
     });
-
 </script>
 </html>

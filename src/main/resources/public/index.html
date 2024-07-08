@@ -10,7 +10,6 @@
 <body>
 <form style="height:420px;" id=indexForm">
     <div id="toasts"></div>
-
     <h1 style="text-align: start">Balance</h1>
     <h2 id="balance"></h2>
     <button style="margin-top: 20px" id="sendMoneyButton">Transfer Money</button>
@@ -27,7 +26,6 @@
         <button style=" padding: 10px;margin-top: -100px;margin-inline: 0" id="adminButton">Admin Panel</button>
     </form>
 </div>
-
 
 </body>
 <script>
@@ -66,28 +64,23 @@
         const adminButton =
             document.getElementById("adminButton");
 
-
         document.getElementById("sendMoneyButton").addEventListener("click", event => {
             event.preventDefault();
             window.location.replace("http://localhost:7070/transfer");
         });
-
         document.getElementById("depositButton").addEventListener("click", event => {
             event.preventDefault();
             window.location.replace("http://localhost:7070/deposit");
         });
-
         document.getElementById("transactionButton").addEventListener("click", event => {
             event.preventDefault();
             window.location.replace("http://localhost:7070/transactions");
         });
-
         adminButton.addEventListener("click", event => {
             event.preventDefault();
             window.location.replace("http://localhost:7070/admin");
         });
     });
 </script>
-
 </html>
 

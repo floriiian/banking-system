@@ -60,7 +60,6 @@
             event.preventDefault();
         })
 
-
         const loginRequest = new XMLHttpRequest();
         // Check if logged in.
         loginRequest.open("GET", "/check_login");
@@ -130,6 +129,5 @@
             transferRequest.send(JSON.stringify(payload));
         };
     });
-
 </script>
 </html>

@@ -35,10 +35,10 @@ public class Main {
         }).start(7070);
 
         app.get("/", ctx -> ctx.redirect("/login.html"));
+        app.get("/index", ctx -> {ctx.redirect("/index.html");});
+
         app.get("/register", ctx -> ctx.redirect("/register.html"));
         app.get("/login", ctx -> ctx.redirect("/login.html"));
-
-        app.get("/index", ctx -> {ctx.redirect("/index.html");});
 
         app.get("/transfer", ctx -> {ctx.redirect("/transfer.html");});
         app.get("/deposit", ctx -> {ctx.redirect("/deposit.html");});
@@ -72,7 +72,7 @@ public class Main {
     };
 
     public static Handler checkIfLoggedIn = ctx -> {
-        if (!hasCookies( ctx.cookieStore().get("id"), ctx.cookieStore().get("role"))) {
+        if (isLoggedOut(ctx.cookieStore().get("id"), ctx.cookieStore().get("role"))) {
             ctx.status(500);
         }
     };
@@ -108,7 +108,6 @@ public class Main {
         }
     };
 
-
     public static Handler handleAddAccount = ctx -> {
 
         ObjectMapper mapper = new ObjectMapper();
@@ -142,7 +141,6 @@ public class Main {
             ctx.result("UNDER_18");
         }
         else{
-
             String encodedPassword = encoder().encode(password);
             Account newAccount = new Account(name, role, encodedPassword,  Integer.parseInt(age), 0, accounts.size() + 1);
             accounts.add(newAccount);
@@ -171,11 +169,9 @@ public class Main {
         ctx.result(transactionLines);
     };
 
-
     public static Handler handleGetAccounts = ctx -> {
 
         String accountLines = "";
-
         for (Account account : accounts) {
             String id = String.valueOf(account.accountId);
             String role = account.role;
@@ -186,14 +182,12 @@ public class Main {
         ctx.result(accountLines);
     };
 
-
-
-
     public static Handler handleTransferMoney = ctx -> {
 
         Integer accountId = ctx.cookieStore().get("id");
         String role = ctx.cookieStore().get("role");
-        if (!hasCookies(accountId, role)) {
+
+        if (isLoggedOut(accountId, role)) {
             ctx.result("NOT_LOGGED_IN");
             return;
         }
@@ -225,6 +219,7 @@ public class Main {
             ctx.result("INVALID_AMOUNT");
             return;
         }
+
         if (getAccountById(accountId) != null && getAccountById(accountId).balance < Long.parseLong(transferAmount)) {
             ctx.result("INSUFFICIENT_FUNDS");
             return;
@@ -248,7 +243,7 @@ public class Main {
 
         Integer accountId = ctx.cookieStore().get("id");
         String role = ctx.cookieStore().get("role");
-        if (!hasCookies(accountId, role)) {
+        if (isLoggedOut(accountId, role)) {
             ctx.result("NOT_LOGGED_IN");
             return;
         }
@@ -277,8 +272,7 @@ public class Main {
         Integer accountId = ctx.cookieStore().get("id");
         String role = ctx.cookieStore().get("role");
 
-        if(!hasCookies(accountId, role)){
-            LOGGER.debug("Account not found.");
+        if(isLoggedOut(accountId, role)){
             ctx.result("NOT_LOGGED_IN");
             return;
         }
@@ -294,13 +288,12 @@ public class Main {
         ctx.result(formatter.format(amt) + ":" + role);
     };
 
-    public static boolean hasCookies(int accountId, String role){
-        return accountId != 0 && !role.isEmpty() && getAccountById((accountId)) != null;
+    public static boolean isLoggedOut(int accountId, String role){
+        return accountId == 0 && role.isEmpty() && getAccountById((accountId)) == null;
     }
 
     public static Handler handleLogin = ctx -> {
 
-        // Get Parameters, check them, show errors
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.readTree(ctx.body());
 
