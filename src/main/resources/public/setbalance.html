@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>BankSystem : Set Balance</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="background">
+    <div class="shape"></div>
+    <div class="shape"></div>
+</div>
+<form style="height:460px" id="setBalanceForm">
+
+    <div id="toasts"></div>
+
+    <h3 style="height: 50px">Set Balance</h3>
+    <label for="id">Account-ID</label>
+    <input type="number" name="id"  placeholder="" min="1" value="1" id="id">
+    <label for="amount">Amount</label>
+    <input type="number" name="amount" placeholder="$" id="amount">
+
+    <button id="setBalanceButton">Set Balance</button>
+    <br><br>
+    <div class="register">
+        <h4 >Got enough money now?</h4>
+        <a href="/index">Go back</a>
+    </div>
+</form>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+
+        function createNotification(type = null, message = null) {
+            const notification = document.createElement('div');
+            notification.classList.add('toast');
+            notification.classList.add(type);
+
+            notification.innerText = message;
+
+            toasts.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // types = 'info, 'success', 'error'];
+        const toasts = document.getElementById('toasts');
+
+        let setBalanceForm = document.getElementById("setBalanceForm");
+
+        const setBalanceButton =
+            document.getElementById("setBalanceButton");
+
+        setBalanceForm.addEventListener("submit", event => {
+            event.preventDefault();
+        })
+
+        // Check if logged in.
+        const xmlhttp = new XMLHttpRequest();
+
+        xmlhttp.open("GET", "/check_login");
+        xmlhttp.onload = function() {
+            if (xmlhttp.readyState !== XMLHttpRequest.DONE) {
+                return;
+            }
+            if (xmlhttp.status >= 200 && xmlhttp.status < 300) {
+                if (xmlhttp.status === 500){
+                    window.location.replace("http://localhost:7070/login");
+                }
+            }
+        }
+        xmlhttp.send();
+
+        setBalanceButton.onclick = function(){
+            let id = document.getElementById("id").value;
+            let amount = document.getElementById("amount").value;
+
+            const payload = {
+                "id": id,
+                "amount": amount
+            };
+
+            xmlhttp.open("POST", "http://localhost:7070/setbalance");
+            xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+            // After the request is done
+            xmlhttp.onload = function() {
+                if (xmlhttp.readyState !== XMLHttpRequest.DONE) {
+                    return;
+                }
+                if (xmlhttp.status >= 200 && xmlhttp.status < 300) {
+
+                    let response = xmlhttp.responseText.split(":");
+
+                    switch(response[0]) {
+                        case "INSUFFICIENT_DATA":
+                            createNotification("info", "You are missing data.");
+                            break;
+                        case "INVALID_AMOUNT":
+                            createNotification('error', "That's not a valid amount.");
+                            break;
+                        case "INVALID_ID":
+                            createNotification('error', "This ID doesn't exist.");
+                            break;
+                        case "SUCCESSFUL_SET":
+                            createNotification('success', "Balance of ID: " + id + " set to " + "$" + amount);
+                            break;
+                    }
+                }
+                else {
+                    console.error("Request failed: ", xmlhttp.status);
+                    createNotification('error', "Server Error");
+                }
+            };
+            xmlhttp.send(JSON.stringify(payload));
+        };
+    });
+
+</script>
+</html>

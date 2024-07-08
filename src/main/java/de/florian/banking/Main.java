@@ -46,10 +46,13 @@ public class Main {
 
         app.get("/admin", ctx -> {ctx.redirect("/admin.html");});
         app.get("/addaccount", ctx -> {ctx.redirect("/addaccount.html");});
+        app.get("/accountlist", ctx -> {ctx.redirect("/accountlist.html");});
+        app.get("/setbalance", ctx -> {ctx.redirect("/setbalance.html");});
 
         // Handles Get Requests
         app.get("/get_balance", handleGetBalance);
         app.get("/get_transactions", handleGetTransactions);
+        app.get("/get_accounts", handleGetAccounts);
         app.get("/check_login", checkIfLoggedIn);
         app.get("/logout", handleLogout);
 
@@ -59,6 +62,7 @@ public class Main {
         app.post("transfer", handleTransferMoney);
         app.post("/deposit", handleDepositMoney);
         app.post("/addaccount", handleAddAccount);
+        app.post("/setbalance", handleSetBalance);
     }
 
     public static Handler handleLogout = ctx -> {
@@ -70,6 +74,37 @@ public class Main {
     public static Handler checkIfLoggedIn = ctx -> {
         if (!hasCookies( ctx.cookieStore().get("id"), ctx.cookieStore().get("role"))) {
             ctx.status(500);
+        }
+    };
+
+    public static Handler handleSetBalance = ctx -> {
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(ctx.body());
+
+        String id  = node.get("id").asText();
+        String amount = node.get("amount").asText();
+
+        if(id.isEmpty() || amount.isEmpty()){
+            ctx.result("INSUFFICIENT_DATA");
+            return;
+        }
+        if(!amount.matches(("[0-9]+"))) {
+            ctx.result("INVALID_AMOUNT");
+            return;
+        }
+
+        if(!id.matches(("[0-9]+"))){
+            ctx.result("INVALID_ID");
+        }
+        else if(getAccountById(Integer.parseInt(id)) == null){
+            ctx.result("INVALID_ID");
+        }
+        else{
+            Account account = getAccountById(Integer.parseInt(id));
+            assert account != null;
+            account.setBalance(Integer.parseInt(amount));
+            ctx.result("SUCCESSFUL_SET");
         }
     };
 
@@ -135,6 +170,24 @@ public class Main {
         }
         ctx.result(transactionLines);
     };
+
+
+    public static Handler handleGetAccounts = ctx -> {
+
+        String accountLines = "";
+
+        for (Account account : accounts) {
+            String id = String.valueOf(account.accountId);
+            String role = account.role;
+            String name = account.name;
+            String balance = String.valueOf(account.balance);
+            accountLines = accountLines.concat("<h4>ID: " + id + " : Name: " + name +  " : Role: " + role + " : Balance: $" + balance + "</h4>");
+        }
+        ctx.result(accountLines);
+    };
+
+
+
 
     public static Handler handleTransferMoney = ctx -> {
 

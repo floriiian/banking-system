@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>BankSystem : Accounts</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="background">
+    <div class="shape"></div>
+    <div class="shape"></div>
+</div>
+<form style="height:700px; width:1000px" id="accountsForm">
+
+    <div id="toasts"></div>
+
+    <h3 style="height: 70px">Account List</h3>
+    <div style="text-align: center;" id="accounts">
+    </div>
+    <br><br>
+    <div class="register">
+        <h4 style=" top: 480px; position: relative; text-align: center;"  >Done stalking your users?</h4>
+        <a style=" top: 480px; position: relative" href="/index" >Go back</a>
+    </div>
+</form>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+
+        const checkLoginRequest = new XMLHttpRequest();
+        checkLoginRequest.open("GET", "/check_login");
+        checkLoginRequest.onload = function() {
+            if (checkLoginRequest.readyState !== XMLHttpRequest.DONE) {
+                return;
+            }
+            if (checkLoginRequest.status >= 200 && checkLoginRequest.status < 300) {
+                if (checkLoginRequest.status === 500){
+                    window.location.replace("http://localhost:7070/login");
+                }
+            }
+        };
+        checkLoginRequest.send();
+
+        const getTransactionsRequest = new XMLHttpRequest();
+        getTransactionsRequest.open("GET", "/get_accounts");
+        getTransactionsRequest.onload = function() {
+            if (getTransactionsRequest.readyState !== XMLHttpRequest.DONE) {
+                return;
+            }
+            if (getTransactionsRequest.status >= 200 && getTransactionsRequest.status < 300) {
+
+                const text = getTransactionsRequest.responseText;
+                console.log(text);
+                if(text < 1){
+                    document.getElementById('accounts').innerHTML = "<h4>There are no accounts, somehow.</h4>";
+                }
+                else{
+                    document.getElementById('accounts').innerHTML = text;
+                }
+            }
+        };
+        getTransactionsRequest.send();
+
+
+    });
+
+</script>
+</html>

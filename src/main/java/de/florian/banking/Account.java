@@ -37,6 +37,9 @@ public class Account {
     public void removeBalance(long balance) {
         this.balance -= balance;
     }
+    public void setBalance(long balance) {
+        this.balance = balance;
+    }
     public void setPassword(String password) {
         this.password = password;
     }
