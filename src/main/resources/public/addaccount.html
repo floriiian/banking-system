@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>BankSystem : Add Account</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="background">
+    <div class="shape"></div>
+    <div class="shape"></div>
+</div>
+<form style="height:620px" id="addAccountForm">
+
+    <div id="toasts"></div>
+
+    <h3 style="height: 50px">Add Account</h3>
+    <label for="name">Name</label>
+    <input type="text" name="name" placeholder="Account Name" id="name">
+
+    <label for="age">Age</label>
+    <input type="number" name="age"  value="1" min="1" placeholder="Account Age" id="age">
+
+    <label for="role">Role</label>
+    <input type="text" name="role" placeholder="Account Role, default: User" id="role">
+
+
+    <label for="password">Password</label>
+    <input type="password" name="password"  placeholder="Account Password" id="password">
+
+    <button id="addAccountButton">Add Account</button>
+    <br><br>
+    <div class="register">
+        <h4 >Done making transactions?</h4>
+        <a href="/index">Go back</a>
+    </div>
+</form>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+
+        function createNotification(type = null, message = null) {
+            const notification = document.createElement('div');
+            notification.classList.add('toast');
+            notification.classList.add(type);
+
+            notification.innerText = message;
+
+            toasts.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // types = 'info, 'success', 'error'];
+        const toasts = document.getElementById('toasts');
+
+        const addAccountButton =
+            document.getElementById("addAccountButton");
+
+        let addAccountForm = document.getElementById("addAccountForm");
+
+        addAccountForm.addEventListener("submit", event => {
+            event.preventDefault();
+        })
+
+
+        const loginRequest = new XMLHttpRequest();
+        // Check if logged in.
+        loginRequest.open("GET", "/check_login");
+        loginRequest.onload = function() {
+            if (loginRequest.readyState !== XMLHttpRequest.DONE) {
+                return;
+            }
+            if (loginRequest.status >= 200 && loginRequest.status < 300) {
+                if (loginRequest.status === 500){
+                    window.location.replace("http://localhost:7070/login");
+                }
+            }
+        }
+        loginRequest.send();
+
+
+
+        const addAccountRequest = new XMLHttpRequest();
+
+        addAccountButton.onclick = function(){
+
+            let name = document.getElementById("name").value;
+            let age = document.getElementById("age").value;
+            let role = document.getElementById("role").value;
+            let password = document.getElementById("password").value;
+
+            const payload = {
+                "name": name,
+                "age": age,
+                "role": role,
+                "password": password
+            };
+
+            addAccountRequest.open("POST", "http://localhost:7070/addaccount");
+            addAccountRequest.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+            // After the request is done
+            addAccountRequest.onload = function() {
+                if (addAccountRequest.readyState !== XMLHttpRequest.DONE) {
+                    return;
+                }
+                if (addAccountRequest.status >= 200 && addAccountRequest.status < 300) {
+
+                    let response = addAccountRequest.responseText.split(":");
+
+                    switch(response[0]) {
+                        case "INSUFFICIENT_DATA":
+                            createNotification("info", "You are missing data.");
+                            break;
+
+                        case "INVALID_AGE":
+                            createNotification('error', "You entered an invalid age.");
+                            break;
+                        case "UNDER_18":
+                            createNotification('error', "User must be over the age of 18.");
+                            break;
+                        case "INVALID_ROLE":
+                            createNotification('error', "Role doesn't exist. Available: Admin, User");
+                            break;
+                        case "SUCCESSFUL_CREATION":
+                            createNotification('success', "You added" + name + " with ID: " +  response[1]);
+                            break;
+                    }
+                }
+                else {
+                    console.error("Request failed: ", addAccountRequest.status);
+                    createNotification('error', "Server Error");
+                }
+            };
+            addAccountRequest.send(JSON.stringify(payload));
+        };
+    });
+
+</script>
+</html>

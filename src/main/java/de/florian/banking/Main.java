@@ -37,10 +37,15 @@ public class Main {
         app.get("/", ctx -> ctx.redirect("/login.html"));
         app.get("/register", ctx -> ctx.redirect("/register.html"));
         app.get("/login", ctx -> ctx.redirect("/login.html"));
+
         app.get("/index", ctx -> {ctx.redirect("/index.html");});
+
         app.get("/transfer", ctx -> {ctx.redirect("/transfer.html");});
         app.get("/deposit", ctx -> {ctx.redirect("/deposit.html");});
         app.get("/transactions", ctx -> {ctx.redirect("/transactions.html");});
+
+        app.get("/admin", ctx -> {ctx.redirect("/admin.html");});
+        app.get("/addaccount", ctx -> {ctx.redirect("/addaccount.html");});
 
         // Handles Get Requests
         app.get("/get_balance", handleGetBalance);
@@ -53,6 +58,7 @@ public class Main {
         app.post("/register", handleRegister);
         app.post("transfer", handleTransferMoney);
         app.post("/deposit", handleDepositMoney);
+        app.post("/addaccount", handleAddAccount);
     }
 
     public static Handler handleLogout = ctx -> {
@@ -64,6 +70,49 @@ public class Main {
     public static Handler checkIfLoggedIn = ctx -> {
         if (!hasCookies( ctx.cookieStore().get("id"), ctx.cookieStore().get("role"))) {
             ctx.status(500);
+        }
+    };
+
+
+    public static Handler handleAddAccount = ctx -> {
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(ctx.body());
+
+        String name = node.get("name").asText();
+        String age = node.get("age").asText();
+        String password = node.get("password").asText();
+        String role = node.get("role").asText();
+
+        if(name.isEmpty() || password.isEmpty() || age.isEmpty()){
+            ctx.result("INSUFFICIENT_DATA");
+            return;
+        }
+
+        if(role.isEmpty() || role.equalsIgnoreCase("User")){
+            role = "ROLE_USER";
+        }
+        else if(role.equalsIgnoreCase("Admin")){
+            role = "ROLE_ADMIN";
+        }
+        else{
+            ctx.result("INVALID_ROLE");
+            return;
+        }
+
+        if(!age.matches(("[0-9]+"))) {
+            ctx.result("INVALID_AGE");
+        }
+        else if(Integer.parseInt(age) < 18){
+            ctx.result("UNDER_18");
+        }
+        else{
+
+            String encodedPassword = encoder().encode(password);
+            Account newAccount = new Account(name, role, encodedPassword,  Integer.parseInt(age), 0, accounts.size() + 1);
+            accounts.add(newAccount);
+
+            ctx.result("SUCCESSFUL_CREATION:" + newAccount.accountId);
         }
     };
 

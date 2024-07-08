@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>BankSystem : Admin</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="background">
+    <div class="shape"></div>
+    <div class="shape"></div>
+</div>
+<form style="height:400px" id="transferForm">
+
+    <div id="toasts"></div>
+
+    <h3 style="height: 50px">Admin Panel</h3>
+    <button style="margin-top: 20px" id="listAccountsButton">List Accounts</button>
+    <button style="margin-top: 20px" id="addAccountButton">Add Account</button>
+    <button style="margin-top: 20px" id="setAccountBalanceButton">Set Account Balance</button>
+    <br><br>
+    <div class="register">
+        <h4 >Are you done managing accounts?</h4>
+        <a href="/index">Go back</a>
+    </div>
+</form>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+
+
+        const loginRequest = new XMLHttpRequest();
+
+        loginRequest.open("GET", "/check_login");
+        loginRequest.onload = function() {
+            if (loginRequest.readyState !== XMLHttpRequest.DONE) {
+                return;
+            }
+            if (loginRequest.status >= 200 && loginRequest.status < 300) {
+                if (loginRequest.status === 500){
+                    window.location.replace("http://localhost:7070/login");
+                }
+            }
+        }
+        loginRequest.send();
+
+        document.getElementById("listAccountsButton").addEventListener("click", event => {
+            event.preventDefault();
+            window.location.replace("http://localhost:7070/accountlist");
+        });
+
+        document.getElementById("addAccountButton").addEventListener("click", event => {
+            event.preventDefault();
+            window.location.replace("http://localhost:7070/addaccount");
+        });
+
+        document.getElementById("setAccountBalanceButton").addEventListener("click", event => {
+            event.preventDefault();
+            window.location.replace("http://localhost:7070/setbalance");
+        });
+
+    });
+
+</script>
+</html>
